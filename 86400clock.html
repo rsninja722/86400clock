@@ -3,7 +3,8 @@
 
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-152717860-1"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-152717860-1');</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-152717860-1"></script>
+    <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'UA-152717860-1');</script>
     <title>86400 clock</title>
     <style>
         html {
@@ -52,6 +53,12 @@
     <p>inspired by <a href="https://robatron.github.io/1440-clock/bars">1440 clock</a></p>
     <p id="time"></p>
     <button onclick="mark()">mark point</button><button onclick="remove()">remove points</button>
+    <a href="https://github.com/rsninja722/86400clock" style="position: absolute; bottom:5px; left:5px;">
+        <img src="GitHub-Mark-Light-32px.png">
+    </a>
+    <a href="https://rsninja.dev" style="position: absolute; bottom:5px; left:40px;">
+        <img src="https://rsninja.dev/home.png" style="height: 32px; image-rendering: pixelated; image-rendering: crisp-edges;">
+    </a>
     <canvas width="300" height="288"></canvas>
     <script>
         // ewww, globals
@@ -68,6 +75,7 @@
         }
 
 
+        // inverts a pixel on the clock
         function mark() {
             var time = new Date();
             var hours = time.getHours();
@@ -79,6 +87,7 @@
             localStorage.points86400 = JSON.stringify(points);
         }
 
+        // clears all points
         function remove() {
             points = [];
             localStorage.points86400 = "[]";
@@ -116,7 +125,7 @@
                             d[pos + 1] = 225;
                             d[pos + 2] = 245;
                             d[pos + 3] = 255;
-                        // dark
+                            // dark
                         } else {
                             d[pos] = 30;
                             d[pos + 1] = 30;
@@ -128,6 +137,7 @@
                             ++pointIndex;
                             nextPoint = points[pointIndex];
                         }
+                    // normal pixel
                     } else {
                         // dark
                         if (currentPixel > pixelsToColor) {
@@ -135,7 +145,7 @@
                             d[pos + 1] = 30;
                             d[pos + 2] = 30;
                             d[pos + 3] = 255;
-                        // blue
+                            // blue
                         } else {
                             d[pos] = 77;
                             d[pos + 1] = 225;
