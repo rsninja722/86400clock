@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-152717860-1"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-152717860-1');</script>
+    <title>86400 clock</title>
+    <style>
+        html {
+            font-family: Consolas, monospace, serif;
+            background-color: #1e1e1e;
+            color: #4de1f5;
+        }
+
+        canvas {
+            border: #101010 1px solid;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            margin: auto;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+        }
+
+        button {
+            background-color: #353535;
+            border-color: #555555;
+            color: #4de1f5;
+            margin: 5px;
+            border-style: outset;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555555;
+        }
+
+        button:active {
+            border-style: inset;
+        }
+
+        a {
+            color: #ffb730;
+        }
+    </style>
+</head>
+
+<body>
+    <p>one pixel represents one second of the day</p>
+    <p>inspired by <a href="https://robatron.github.io/1440-clock/bars">1440 clock</a></p>
+    <p id="time"></p>
+    <button onclick="mark()">mark point</button><button onclick="remove()">remove points</button>
+    <canvas width="300" height="288"></canvas>
+    <script>
+        // ewww, globals
+        var canvas = document.getElementsByTagName("canvas")[0];
+        var ctx = canvas.getContext("2d");
+        var data = ctx.getImageData(0, 0, 300, 288);
+
+        var timeText = document.getElementById("time");
+
+        // pixels on the clock that will be inverted 
+        var points = [];
+        if (localStorage.points86400 != undefined) {
+            points = JSON.parse(localStorage.points86400);
+        }
+
+
+        function mark() {
+            var time = new Date();
+            var hours = time.getHours();
+            var minutes = time.getMinutes();
+            var seconds = time.getSeconds();
+            var pointTime = hours * 3600 + minutes * 60 + seconds - 1;
+            points.push(pointTime);
+            points.sort((a, b) => a - b);
+            localStorage.points86400 = JSON.stringify(points);
+        }
+
+        function remove() {
+            points = [];
+            localStorage.points86400 = "[]";
+        }
+
+        function updateClock() {
+            // get time
+            var time = new Date();
+            var hours = time.getHours();
+            var minutes = time.getMinutes();
+            var seconds = time.getSeconds();
+            // update html time
+            timeText.innerText = (hours + "").padStart(2, "0") + ":" + (minutes + "").padStart(2, "0") + ":" + (seconds + "").padStart(2, "0");
+
+            // go up until this point with color
+            var pixelsToColor = hours * 3600 + minutes * 60 + seconds;
+
+            var currentPixel = 0;
+            // position in image data
+            var pos = 0;
+
+            // next point to check for
+            var nextPoint = points[0];
+            var pointIndex = 0;
+
+            // go through data
+            var d = data.data;
+            for (var y = 0; y < 288; y++) {
+                for (var x = 0; x < 300; x++) {
+                    // marked pixel
+                    if (currentPixel === nextPoint) {
+                        // blue
+                        if (currentPixel > pixelsToColor) {
+                            d[pos] = 77;
+                            d[pos + 1] = 225;
+                            d[pos + 2] = 245;
+                            d[pos + 3] = 255;
+                        // dark
+                        } else {
+                            d[pos] = 30;
+                            d[pos + 1] = 30;
+                            d[pos + 2] = 30;
+                            d[pos + 3] = 255;
+                        }
+                        // look for the next point if there is one
+                        if (pointIndex < points.length - 1) {
+                            ++pointIndex;
+                            nextPoint = points[pointIndex];
+                        }
+                    } else {
+                        // dark
+                        if (currentPixel > pixelsToColor) {
+                            d[pos] = 30;
+                            d[pos + 1] = 30;
+                            d[pos + 2] = 30;
+                            d[pos + 3] = 255;
+                        // blue
+                        } else {
+                            d[pos] = 77;
+                            d[pos + 1] = 225;
+                            d[pos + 2] = 245;
+                            d[pos + 3] = 255;
+                        }
+                    }
+                    ++currentPixel;
+                    pos += 4;
+                }
+            }
+
+            ctx.putImageData(data, 0, 0);
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+    </script>
+</body>
+
+</html>
